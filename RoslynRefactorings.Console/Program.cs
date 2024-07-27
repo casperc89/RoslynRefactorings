@@ -5,13 +5,16 @@ using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.CodeAnalysis.Operations;
+
 using RoslynRefactorings.Console.ArgumentTranslation;
+
+namespace RoslynRefactorings.Console;
 
 internal class Program
 {
     private static readonly IArgumentTranslationStrategy TranslationStrategy =
         new NoArgumentTranslationStrategy();
-        // new LimitTranslationsArgumentTranslationStrategy(new OpenAITranslateInputAsync(), 10);
+    // new LimitTranslationsArgumentTranslationStrategy(new OpenAITranslateInputAsync(), 10);
     
     public static async Task Main(string[] args)
     {
@@ -153,7 +156,7 @@ internal class Program
         var argValue = argToTranslate.ToFullString();
         var translatedArgValue = await TranslationStrategy.TranslateInputAsync(argValue);
 
-        Console.WriteLine($"{argValue} >> {translatedArgValue}");
+        System.Console.WriteLine($"{argValue} >> {translatedArgValue}");
 
         var translatedArgument = ConvertToArgumentSyntax(translatedArgValue);
         var newArgs = curArgs.ReplaceNode(argToTranslate, translatedArgument);

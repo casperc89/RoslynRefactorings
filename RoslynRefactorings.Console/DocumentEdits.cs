@@ -1,6 +1,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Editing;
 
+namespace RoslynRefactorings.Console;
+
 internal class DocumentEdits
 {
     private readonly Dictionary<DocumentId, DocumentEditor> _documents = new();

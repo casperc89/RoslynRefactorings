@@ -19,7 +19,7 @@ public class ClassWithLogger
             Logger.Info($"{kayttajienMaara} käyttäjien poistaminen tietokannasta {titokannanNimi}");
             Logger.InfoFormat("Otetaan käyttöön {0} muutosta {1} käyttäjälle.", true, false);
             Logger.InfoFormat(CultureInfo.CurrentCulture, "Otetaan käyttöön {0} muutosta {1} käyttäjälle.", true, false);
-            Logger.Info("Ugly logging statement: " + true + " true" + false);
+            Logger.Info("Ruma lokilausuma: " + true + ".");
 
 
             // Unsupported
