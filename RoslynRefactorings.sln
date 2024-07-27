@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RosylinTranslator.Host", "RosylinTranslator.Host\RosylinTranslator.Host.csproj", "{B465D62E-F058-4E9F-8252-7974DFEB23DB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoslynRefactorings.Console", "RoslynRefactorings.Console\RoslynRefactorings.Console.csproj", "{B465D62E-F058-4E9F-8252-7974DFEB23DB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleInputApplication", "SampleInputApplication\SampleInputApplication.csproj", "{AD08D362-57CC-4F49-852F-69D597C42173}"
 EndProject

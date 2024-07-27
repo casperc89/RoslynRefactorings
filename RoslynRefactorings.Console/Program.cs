@@ -170,6 +170,8 @@ internal class Program
     {
         var syntaxFromString = CSharpSyntaxTree.ParseText(value);
         var interpolatedString = syntaxFromString.GetRoot().DescendantNodes().OfType<InterpolatedStringExpressionSyntax>().First();
+
+        var nodes = syntaxFromString.GetRoot().DescendantNodes();
                             
         return SyntaxFactory.Argument(interpolatedString);
     }
@@ -243,16 +245,13 @@ Examples:
             return editor;
         }
 
-        public async Task SaveAsync(string postfix = "")
+        public async Task SaveAsync()
         {
             foreach (var documentEdit in _documents.Values)
             {
                 var changedDoc = documentEdit.GetChangedDocument();
-                var directory = Path.GetDirectoryName(changedDoc.FilePath);
-                var filename = $"{changedDoc.Name}{postfix}";
-                
                 var txt = await changedDoc.GetTextAsync();
-                await File.WriteAllTextAsync(Path.Combine(directory, filename), txt.ToString());
+                await File.WriteAllTextAsync(changedDoc.FilePath, txt.ToString());
             }
         }
     }
