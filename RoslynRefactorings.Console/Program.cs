@@ -9,7 +9,9 @@ using OpenAI.Chat;
 
 internal class Program
 {
-    private static readonly ArgumentTranslationStrategy TranslationStrategy = new NoArgumentTranslationStrategy();
+    private static readonly IArgumentTranslationStrategy TranslationStrategy =
+        // new NoArgumentTranslationStrategy();
+        new LimitTranslationsArgumentTranslationStrategy(new OpenAITranslateInputAsync(), 10);
     
     public static async Task Main(string[] args)
     {
@@ -133,14 +135,15 @@ internal class Program
             return;
 
         // Based on the argument expression we'll have to apply different logic to
-        // create a replacement argument. Right now we'll only support string literals and interpolated strings.
+        // create a replacement argument. Right now we'll only support string literals, interpolated strings
+        // and add expression strings.
         // Unsupported:
-        // * Arguments with add expression
         // * Arguments that use a (local) reference
         bool supportedArgument = argToTranslate.Expression.Kind() switch
         {
             SyntaxKind.StringLiteralExpression => true,
             SyntaxKind.InterpolatedStringExpression => true,
+            SyntaxKind.AddExpression => true,
             _ => false
         };
 
@@ -152,59 +155,67 @@ internal class Program
 
         Console.WriteLine($"{argValue} >> {translatedArgValue}");
 
-        var translatedArgument = argToTranslate.Expression.Kind() switch
-        {
-            SyntaxKind.StringLiteralExpression => CreateLiteralString(translatedArgValue, editor.Generator),
-            SyntaxKind.InterpolatedStringExpression => CreateInterpolatedString(translatedArgValue),
-            _ => argToTranslate
-        };
-
-        if (translatedArgument == argToTranslate)
-            return;
-
+        var translatedArgument = ConvertToArgumentSyntax(translatedArgValue);
         var newArgs = curArgs.ReplaceNode(argToTranslate, translatedArgument);
         editor.ReplaceNode(curArgs, newArgs);
     }
 
-    private static SyntaxNode CreateInterpolatedString(string value)
+    private static SyntaxNode ConvertToArgumentSyntax(string value)
     {
         var syntaxFromString = CSharpSyntaxTree.ParseText(value);
-        var interpolatedString = syntaxFromString.GetRoot().DescendantNodes().OfType<InterpolatedStringExpressionSyntax>().First();
+        var interpolatedString = syntaxFromString.GetRoot()
+            .DescendantNodes()
+            .OfType<ExpressionStatementSyntax>()
+            .First();
 
-        var nodes = syntaxFromString.GetRoot().DescendantNodes();
-                            
-        return SyntaxFactory.Argument(interpolatedString);
-    }
-
-    private static SyntaxNode CreateLiteralString(string value, SyntaxGenerator generator)
-    {
-        string stripped = value.Trim('"');
-        return generator.Argument(generator.LiteralExpression(stripped));
+        return SyntaxFactory.Argument(interpolatedString.Expression);
     }
 
     private static ArgumentSyntax? FindArgument(ArgumentListSyntax curArgs, string argName, SemanticModel model)
     {
         foreach (var arg in curArgs.Arguments)
         {
-            IArgumentOperation operation = (IArgumentOperation)model.GetOperation(arg);
+            var operation = (IArgumentOperation)model.GetOperation(arg);
             if (operation?.Parameter.Name == argName) return arg;
         }
 
         return null;
     }
 
-    private interface ArgumentTranslationStrategy
+    private interface IArgumentTranslationStrategy
     {
         Task<string> TranslateInputAsync(string input);
     }
     
-    private class NoArgumentTranslationStrategy : ArgumentTranslationStrategy
+    private class NoArgumentTranslationStrategy : IArgumentTranslationStrategy
     {
         public Task<string> TranslateInputAsync(string input) => Task.FromResult(input);
     }
+    
+    private class LimitTranslationsArgumentTranslationStrategy : IArgumentTranslationStrategy
+    {
+        private readonly IArgumentTranslationStrategy _inner;
+        private readonly int _maxNumberOfTranslations;
+        private int _numberOfTranslations = 0;
+        private readonly NoArgumentTranslationStrategy _noArgumentTranslation;
 
+        public LimitTranslationsArgumentTranslationStrategy(IArgumentTranslationStrategy inner, int maxNumberOfTranslations = int.MaxValue)
+        {
+            _noArgumentTranslation = new NoArgumentTranslationStrategy();
+            _inner = inner;
+            _maxNumberOfTranslations = maxNumberOfTranslations;
+        }
 
-    private class OpenAITranslateInputAsync : ArgumentTranslationStrategy
+        public Task<string> TranslateInputAsync(string input)
+        {
+            if (_numberOfTranslations++ < _maxNumberOfTranslations)
+                return _inner.TranslateInputAsync(input);
+            
+            return _noArgumentTranslation.TranslateInputAsync(input);
+        }
+    }
+
+    private class OpenAITranslateInputAsync : IArgumentTranslationStrategy
     {
         private readonly string _systemPrompt =
         @"
