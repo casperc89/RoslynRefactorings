@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RosylinTranslator.Host", "RosylinTranslator.Host\RosylinTranslator.Host.csproj", "{B465D62E-F058-4E9F-8252-7974DFEB23DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleInputApplication", "SampleInputApplication\SampleInputApplication.csproj", "{AD08D362-57CC-4F49-852F-69D597C42173}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B465D62E-F058-4E9F-8252-7974DFEB23DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B465D62E-F058-4E9F-8252-7974DFEB23DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B465D62E-F058-4E9F-8252-7974DFEB23DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B465D62E-F058-4E9F-8252-7974DFEB23DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD08D362-57CC-4F49-852F-69D597C42173}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD08D362-57CC-4F49-852F-69D597C42173}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD08D362-57CC-4F49-852F-69D597C42173}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD08D362-57CC-4F49-852F-69D597C42173}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
