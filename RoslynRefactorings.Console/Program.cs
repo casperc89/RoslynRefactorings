@@ -5,13 +5,13 @@ using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.CodeAnalysis.Operations;
-using OpenAI.Chat;
+using RoslynRefactorings.Console.ArgumentTranslation;
 
 internal class Program
 {
     private static readonly IArgumentTranslationStrategy TranslationStrategy =
-        // new NoArgumentTranslationStrategy();
-        new LimitTranslationsArgumentTranslationStrategy(new OpenAITranslateInputAsync(), 10);
+        new NoArgumentTranslationStrategy();
+        // new LimitTranslationsArgumentTranslationStrategy(new OpenAITranslateInputAsync(), 10);
     
     public static async Task Main(string[] args)
     {
@@ -180,90 +180,5 @@ internal class Program
         }
 
         return null;
-    }
-
-    private interface IArgumentTranslationStrategy
-    {
-        Task<string> TranslateInputAsync(string input);
-    }
-    
-    private class NoArgumentTranslationStrategy : IArgumentTranslationStrategy
-    {
-        public Task<string> TranslateInputAsync(string input) => Task.FromResult(input);
-    }
-    
-    private class LimitTranslationsArgumentTranslationStrategy : IArgumentTranslationStrategy
-    {
-        private readonly IArgumentTranslationStrategy _inner;
-        private readonly int _maxNumberOfTranslations;
-        private int _numberOfTranslations = 0;
-        private readonly NoArgumentTranslationStrategy _noArgumentTranslation;
-
-        public LimitTranslationsArgumentTranslationStrategy(IArgumentTranslationStrategy inner, int maxNumberOfTranslations = int.MaxValue)
-        {
-            _noArgumentTranslation = new NoArgumentTranslationStrategy();
-            _inner = inner;
-            _maxNumberOfTranslations = maxNumberOfTranslations;
-        }
-
-        public Task<string> TranslateInputAsync(string input)
-        {
-            if (_numberOfTranslations++ < _maxNumberOfTranslations)
-                return _inner.TranslateInputAsync(input);
-            
-            return _noArgumentTranslation.TranslateInputAsync(input);
-        }
-    }
-
-    private class OpenAITranslateInputAsync : IArgumentTranslationStrategy
-    {
-        private readonly string _systemPrompt =
-        @"
-You are translating formatted log4net messages and are given a string literal (possibly interpolated).
-Translate the following code from Finnish to English. 
-Always keep all placeholders and only respond with the translation as code.
-
-Examples:
-1. `""{0} kyselyn suorittaminen osoitteessa {1} epäonnistui koodilla: {2}""` results in ""{0} executing the query at {1} failed with code: {2}""
-2. `""$""{0} kyselyn suorittaminen osoitteessa {1} epäonnistui koodilla: {2}""""` results in $""{0} executing the query at {1} failed with code: {2}""";
-
-        private readonly ChatClient _chatClient = new("gpt-3.5-turbo");
-
-        public async Task<string> TranslateInputAsync(string input)
-        {
-            var systemMsg = new SystemChatMessage(_systemPrompt);
-        
-            var userMsg = new UserChatMessage(input);
-            var result = await _chatClient.CompleteChatAsync([systemMsg, userMsg]);
-            var content = result.Value.Content;
-            var responseStr = content.First().Text;
-
-            return responseStr;
-        }
-    }
-
-    private class DocumentEdits
-    {
-        private readonly Dictionary<DocumentId, DocumentEditor> _documents = new();
-
-        public async Task<DocumentEditor> GetOrAddAsync(Document document)
-        {
-            if (_documents.TryGetValue(document.Id, out var editedDocument))
-                return editedDocument;
-
-            var editor = await DocumentEditor.CreateAsync(document);
-            _documents.Add(document.Id, editor);
-            return editor;
-        }
-
-        public async Task SaveAsync()
-        {
-            foreach (var documentEdit in _documents.Values)
-            {
-                var changedDoc = documentEdit.GetChangedDocument();
-                var txt = await changedDoc.GetTextAsync();
-                await File.WriteAllTextAsync(changedDoc.FilePath, txt.ToString());
-            }
-        }
     }
 }
