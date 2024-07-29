@@ -1,6 +1,6 @@
 using OpenAI.Chat;
 
-namespace RoslynRefactorings.Console.ArgumentTranslation;
+namespace RoslynRefactorings.ConsoleApp.ArgumentTranslation;
 
 internal class OpenAITranslateInputAsync : IArgumentTranslationStrategy
 {

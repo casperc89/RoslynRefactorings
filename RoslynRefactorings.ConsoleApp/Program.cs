@@ -5,10 +5,9 @@ using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.CodeAnalysis.Operations;
+using RoslynRefactorings.ConsoleApp.ArgumentTranslation;
 
-using RoslynRefactorings.Console.ArgumentTranslation;
-
-namespace RoslynRefactorings.Console;
+namespace RoslynRefactorings.ConsoleApp;
 
 internal class Program
 {
@@ -156,7 +155,7 @@ internal class Program
         var argValue = argToTranslate.ToFullString();
         var translatedArgValue = await TranslationStrategy.TranslateInputAsync(argValue);
 
-        System.Console.WriteLine($"{argValue} >> {translatedArgValue}");
+        Console.WriteLine($"{argValue} >> {translatedArgValue}");
 
         var translatedArgument = ConvertToArgumentSyntax(translatedArgValue);
         var newArgs = curArgs.ReplaceNode(argToTranslate, translatedArgument);

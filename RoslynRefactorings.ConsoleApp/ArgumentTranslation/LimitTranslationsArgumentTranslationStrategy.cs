@@ -1,4 +1,4 @@
-namespace RoslynRefactorings.Console.ArgumentTranslation;
+namespace RoslynRefactorings.ConsoleApp.ArgumentTranslation;
 
 internal class LimitTranslationsArgumentTranslationStrategy : IArgumentTranslationStrategy
 {

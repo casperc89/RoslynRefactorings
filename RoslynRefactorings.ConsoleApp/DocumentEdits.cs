@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Editing;
 
-namespace RoslynRefactorings.Console;
+namespace RoslynRefactorings.ConsoleApp;
 
 internal class DocumentEdits
 {
